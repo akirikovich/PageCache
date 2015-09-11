@@ -7,7 +7,9 @@ class CPageCache {
 	// Get CSS
 	public static function getCSS($arCSS, $type) {
 		$cachedFile = self::getCacheKey($arCSS).".css"; // Get cache file name
-		if (!self::validateCache($cachedFile)) { // If cache is valid
+		if (!self::validateCache($cachedFile)) { // If cache is invalid
+			// Clear old cache
+			self::clearCache();
 			// Create new cache file
 			self::createCacheFile($cachedFile, $arCSS);
 		}
@@ -20,7 +22,6 @@ class CPageCache {
 				return '<link href="'.self::getCacheFilePath($cachedFile, false).'" rel="stylesheet" type="text/css">';
 			break;
 		}
-
 	}
 
 	// Get JS
@@ -42,6 +43,9 @@ class CPageCache {
 		}
 	}
 	
+	
+
+
 	// Create cache file
 	private static function createCacheFile($filePath, $arFiles) {
 		if(!$arFiles || !is_array($arFiles)) {
@@ -57,6 +61,17 @@ class CPageCache {
 		
 		// Save file
 		file_put_contents(self::getCacheFilePath($filePath), $cacheFile);
+	}
+	
+	// Clear cache
+	private static function clearCache() {
+		$currentTime = time();
+		foreach(glob($_SERVER["DOCUMENT_ROOT"].self::CACHE_DIR."*") as $fileName) {
+			// Remove file
+			if($currentTime - filemtime($fileName) > self::CACHE_TIME) {
+				unlink($fileName);
+			}
+		}
 	}
 
 	// Get file contents
@@ -113,7 +128,8 @@ class CPageCache {
 		}
 		$fileKey = '';
 		foreach ($arFiles as $fileName) {
-			$fileKey .= md5($fileName);
+			$fileModTime = (strstr($fileName, "http") === false) ? filemtime($fileName) : ''; // Modification date
+			$fileKey .= md5($fileName.$fileModTime.$fileModTime);
 		}
 		return $fileKey;
 	}
