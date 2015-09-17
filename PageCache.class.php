@@ -1,11 +1,15 @@
 <?php
 class CPageCache {
 
-	const CACHE_TIME = 86400; // One day cache
+	private static $CACHE_TIME = 86400; // One day cache
 	const CACHE_DIR = "/cache/"; // Cache folder
 	
 	// Get CSS
-	public static function getCSS($arCSS, $type) {
+	public static function getCSS($arCSS, $type, $cacheTime = 86400) {
+		// Cache timelife
+		if($cacheTime) {
+			self::$CACHE_TIME = $cacheTime;
+		}
 		$cachedFile = self::getCacheKey($arCSS).".css"; // Get cache file name
 		if (!self::validateCache($cachedFile)) { // If cache is invalid
 			// Clear old cache
@@ -25,9 +29,15 @@ class CPageCache {
 	}
 
 	// Get JS
-	public static function getJS($arJS, $type) {
+	public static function getJS($arJS, $type, $cacheTime = 86400) {
+		// Cache timelife
+		if($cacheTime) {
+			self::$CACHE_TIME = $cacheTime;
+		}
 		$cachedFile = self::getCacheKey($arJS).".js"; // Get cache file name
 		if (!self::validateCache($cachedFile)) { // If cache is valid
+			// Clear old cache
+			self::clearCache();
 			// Create new cache file
 			self::createCacheFile($cachedFile, $arJS);
 		}
@@ -68,7 +78,7 @@ class CPageCache {
 		$currentTime = time();
 		foreach(glob($_SERVER["DOCUMENT_ROOT"].self::CACHE_DIR."*") as $fileName) {
 			// Remove file
-			if($currentTime - filemtime($fileName) > self::CACHE_TIME) {
+			if($currentTime - filemtime($fileName) > self::$CACHE_TIME) {
 				unlink($fileName);
 			}
 		}
@@ -149,7 +159,7 @@ class CPageCache {
 			return false;
 		}
 		// File modification time
-		if((time() - filemtime(self::getCacheFilePath($file)) > self::CACHE_TIME)) {
+		if((time() - filemtime(self::getCacheFilePath($file)) > self::$CACHE_TIME)) {
 			return false;
 		}
 		return true;
