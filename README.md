@@ -21,7 +21,8 @@
 					"https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.0.2/css/hover-min.css",
 					$_SERVER["DOCUMENT_ROOT"]."/css/akirikovich.css"
 				),
-				"internal" // или "external", если требуется вставить как ссылку
+				"internal", // или "external", если требуется вставить как ссылку
+				86400 // Время жизни кэша
 			);
 		?>
 ```
@@ -34,7 +35,8 @@
 					"http://code.jquery.com/jquery-1.11.3.min.js",
 					$_SERVER["DOCUMENT_ROOT"]."/js/akirikovich.js"
 				),
-				"internal" // или "external", если требуется вставить как ссылку
+				"internal", // или "external", если требуется вставить как ссылку
+				86400 // Время жизни кэша
 			);
 		?>
 ```
