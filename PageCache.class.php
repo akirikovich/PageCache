@@ -4,6 +4,38 @@ class CPageCache {
 	private static $CACHE_TIME = 86400; // One day cache
 	const CACHE_DIR = "/cache/"; // Cache folder
 	
+	
+	
+	// Get optimized images
+	public static function getImg($src, $quality = 90) {
+		if(!$src) {
+			throw new Exception("Empty image source");
+		}
+		// New picture path
+		$newPath = $src;
+		$fullPath = $_SERVER["DOCUMENT_ROOT"].$newPath;
+		$fullPathInfo = pathinfo($fullPath);
+		
+		// Chech file in the cache
+		$fileCachePath = self::CACHE_DIR.md5($fullPath.$quality).".".$fullPathInfo["extension"];
+		$fullFileCachePath = $_SERVER["DOCUMENT_ROOT"].$fileCachePath;
+		if(is_file($fullFileCachePath)) {
+			return $fileCachePath;
+		}
+		
+		// Create new cache file
+		if($fullPathInfo["extension"] == "jpg" || $fullPathInfo["extension"] == "jpeg") {
+			$newImg = imagecreatefromjpeg($fullPath);
+			imagejpeg($newImg, $fullFileCachePath, $quality);
+			return $fileCachePath;
+		}
+		// Return image source
+		return $newPath;
+	}
+	
+	
+	
+	
 	// Get CSS
 	public static function getCSS($arCSS, $type, $cacheTime = 86400) {
 		// Cache timelife
@@ -27,6 +59,8 @@ class CPageCache {
 			break;
 		}
 	}
+
+
 
 	// Get JS
 	public static function getJS($arJS, $type, $cacheTime = 86400) {
@@ -52,8 +86,7 @@ class CPageCache {
 			break;
 		}
 	}
-	
-	
+
 
 
 	// Create cache file
@@ -73,6 +106,8 @@ class CPageCache {
 		file_put_contents(self::getCacheFilePath($filePath), $cacheFile);
 	}
 	
+	
+	
 	// Clear cache
 	private static function clearCache() {
 		$currentTime = time();
@@ -84,6 +119,8 @@ class CPageCache {
 		}
 	}
 
+
+
 	// Get file contents
 	private static function getFileSource($filePath) {
 		if(!is_file($filePath)) {
@@ -91,6 +128,8 @@ class CPageCache {
 		}
 		return file_get_contents($filePath);
 	}
+	
+	
 	
 	// File minification
 	private static function minifyFile($fileStr) {
@@ -131,6 +170,8 @@ class CPageCache {
 		return $fileStr;
 	}
 	
+	
+	
 	// Cache file name generation
 	private static function getCacheKey($arFiles) {
 		if(!$arFiles || !is_array($arFiles)) {
@@ -144,10 +185,14 @@ class CPageCache {
 		return $fileKey;
 	}
 	
+	
+	
 	// Get full path to the cache file
 	private static function getCacheFilePath($file, $isFull = true) {
 		return ($isFull ? $_SERVER["DOCUMENT_ROOT"] : '').self::CACHE_DIR.$file;
 	}
+
+
 
 	// Cache validation
 	private static function validateCache($file) {
@@ -164,6 +209,5 @@ class CPageCache {
 		}
 		return true;
 	}
-
 }
 ?>
